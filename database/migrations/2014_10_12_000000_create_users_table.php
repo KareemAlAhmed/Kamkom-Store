@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('streetAddress');
             $table->string('province');
             $table->string('city');
-            $table->integer('zipcode');
             $table->string('ship_to')->nullable()->default('lebanon');
             $table->string('currency')->nullable()->default('USD');
             $table->string('image_url')->nullable()->default('images.jpg');

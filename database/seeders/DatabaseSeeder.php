@@ -18,8 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         \App\Models\User::factory(5)->create();
-        Product::factory(5)->create(["status"=>"completed"]);
-        Product::factory(5)->create(["status"=>"pending"]);
+        Product::factory(5)->create();
         Category::factory(5)->create();
         Purchase::factory(5)->create();
         \App\Models\User::factory(1)->create(["email"=>"karimamer@gmail.com","firstName"=>"karim","secondName"=>"ahmad","password"=>"81258136"]);

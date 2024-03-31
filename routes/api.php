@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CountryController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +42,7 @@ Route::controller(ProductController::class)->group(function () {
     Route::put('product/{pordId}/edit','edit'); 
     Route::delete('product/{pordId}/delete','delete');
     Route::get('product/search/{prod:slug}','search');  
+    Route::get('products','all_prod');  
 });
 Route::controller(CategoryController::class)->group(function () {
     Route::post('category/create','create');
@@ -48,3 +52,23 @@ Route::controller(CategoryController::class)->group(function () {
     Route::get('category/{categoryName:slug}/search/{pordName:slug}','search');  
 });
 
+Route::controller(CountryController::class)->group(function () {
+    Route::post('coutries/add','add_countries');
+    Route::get('coutrie/getMobileCode/{coountry:slug}','get_mobile_code');
+    Route::get('coutries/all','all_countries');
+});
+
+
+Route::controller(MessageController::class)->group(function () {
+    Route::post('message/create/{senderId}/{receiverId}','create');
+    Route::get('message/{msgId}','show');
+    Route::get('message/edit/{msgId}','edit');
+    Route::patch('message/edit/{msgId}','update');
+});
+
+Route::controller(ReviewController::class)->group(function () {
+    Route::post('review/create/{reviewerId}/{prodId}','create');
+    Route::get('review/{reviewId}','show');
+    Route::get('review/edit/{reviewId}','edit');
+    Route::patch('review/edit/{reviewId}','update');
+});

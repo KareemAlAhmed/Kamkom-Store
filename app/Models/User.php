@@ -53,4 +53,13 @@ class User extends Authenticatable
     public function sales(){
         return $this->hasMany(Purchase::class,"seller_id");
     }
+    public function reviews(){
+        return $this->hasMany(Review::class,"reviewer_id");
+    }
+    public function messagesSended(){
+        return $this->hasMany(Message::class,"sender_id");
+    }
+    public function messagesReceived(){
+        return $this->hasMany(Message::class,"receiver_id");
+    }
 }
