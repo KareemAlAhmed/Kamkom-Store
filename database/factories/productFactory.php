@@ -19,8 +19,8 @@ class productFactory extends Factory
         return [
             'name' => fake()->name(),
             'brand_name' => fake()->word(),
-            'price' => fake()->randomNumber(),
-            'quantity' => fake()->randomNumber(),
+            'price' => fake()->numberBetween(1.00,100.00),
+            'quantity' => fake()->numberBetween(1,20),
             'category_id' => 1,
             'user_id' => 1,
             "images_url"=>'["photo1.png"]',

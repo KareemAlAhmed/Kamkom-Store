@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("brand_name");
-            $table->integer("price");
+            $table->float("price");
             $table->integer("quantity");
             $table->integer("sold_number")->default(0);
             $table->integer("reviews_number")->default(0);

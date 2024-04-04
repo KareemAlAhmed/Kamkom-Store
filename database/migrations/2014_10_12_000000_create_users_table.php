@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->float('balance')->default(100.00);
             $table->string('mobile_number')->unique();
             $table->string('country');
             $table->string('streetAddress');

@@ -23,7 +23,6 @@ class AuthController extends Controller
             "streetAddress"=>'required|min:18',
             "province"=>'required|min:4',
             "city"=>'required|min:3',
-            "zipcode"=>'required|min:2',
             "image_url"=>'min:3',
             "company_name"=>'min:4',
             "company_business"=>'min:4',
@@ -46,7 +45,6 @@ class AuthController extends Controller
             $user->streetAddress=$request['streetAddress'];
             $user->province=$request['province'];
             $user->city=$request['city'];
-            $user->zipcode=$request['zipcode'];
             $user->image_url=$request['image_url'];
             if(isset($user->company_name)){
                 $user->company_name=$request['company_name'];
@@ -56,7 +54,9 @@ class AuthController extends Controller
             }
             $current_time = date("Y-m-d H:i:s");
             $user->email_verified_at=$current_time;
-            $user->save();
+            $id=$user->save();
+            $cart=new CartController();
+            $cart->create($id);
             $token=$user->createToken('myapptoken')->plainTextToken;
             $data=[$user,$token];
 

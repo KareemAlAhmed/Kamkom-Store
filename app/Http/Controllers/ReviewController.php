@@ -35,7 +35,7 @@ class ReviewController extends Controller
         }else{
             $rev=new Review();
             $rev->content=$request["content"];
-            $rev->star_numbers=$request["star_numbers"];
+            $rev->star_numbers=(float)$request["star_numbers"];
             $rev->reviewer_id=$reviewerId;
             $rev->product_id=$prodId;
             $rev->save();
@@ -97,7 +97,7 @@ class ReviewController extends Controller
             ]);
         }else{
             $rev->content=$request["content"];
-            $rev->star_numbers=$request["star_numbers"];
+            $rev->star_numbers=(float)$request["star_numbers"];
             $rev->update();
 
             return response()->json([
@@ -106,5 +106,21 @@ class ReviewController extends Controller
                 "rev"=>$rev
             ]);
         }
+    }
+    public function delete($revId){
+        $rev=Review::find($revId);
+        if($rev){
+            $rev->delete();
+            return response()->json([
+                "status"=>200,
+                "success"=>"The Review Deleted successfully",
+            ]);
+        }else{
+            return response()->json([
+                "status"=>404,
+                "error"=>"The Review Doesnt Exist.",
+            ]);
+        }
+        
     }
 }

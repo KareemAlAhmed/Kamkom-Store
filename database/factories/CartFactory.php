@@ -2,13 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Http\Controllers\CountryController;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Country>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Cart>
  */
-class CountryFactory extends Factory
+class CartFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,7 +17,9 @@ class CountryFactory extends Factory
     public function definition(): array
     {
         return [
-                //
+            "owner_id"=>fake()->numberBetween(1,5),
+            "products_id"=>"[]",
+            "cost"=>0.00
         ];
     }
 }

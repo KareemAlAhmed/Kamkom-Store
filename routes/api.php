@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReviewController;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -51,19 +54,25 @@ Route::controller(CategoryController::class)->group(function () {
     Route::delete('category/{cateId}/delete','delete');
     Route::get('category/{categoryName:slug}/search/{pordName:slug}','search');  
 });
-
+Route::controller(PurchaseController::class)->group(function () {
+    Route::post('purchase/{cartId}/to/{buyerId}','create');//always cartId == buyerId
+    Route::get('purchase/{purchaseId}','show');
+    Route::get('purchase/edit/{purchaseId}','edit');
+    // Route::patch('purchase/edit/{purchaseId}','update');
+    Route::delete('purchase/delete/{purchaseId}','delete');
+});
 Route::controller(CountryController::class)->group(function () {
     Route::post('coutries/add','add_countries');
     Route::get('coutrie/getMobileCode/{coountry:slug}','get_mobile_code');
     Route::get('coutries/all','all_countries');
 });
 
-
 Route::controller(MessageController::class)->group(function () {
     Route::post('message/create/{senderId}/{receiverId}','create');
     Route::get('message/{msgId}','show');
     Route::get('message/edit/{msgId}','edit');
     Route::patch('message/edit/{msgId}','update');
+    Route::delete('message/delete/{msgId}','delete');
 });
 
 Route::controller(ReviewController::class)->group(function () {
@@ -71,4 +80,10 @@ Route::controller(ReviewController::class)->group(function () {
     Route::get('review/{reviewId}','show');
     Route::get('review/edit/{reviewId}','edit');
     Route::patch('review/edit/{reviewId}','update');
+    Route::delete('review/delete/{reviewId}','delete');
+});
+Route::controller(CartController::class)->group(function () {
+    Route::get('cart/{ownerId}','show');
+    Route::post('cart/add/{ownerId}/{prodId}','add');
+    Route::post('cart/remove/from/{ownerId}/{prodId}','remove');
 });

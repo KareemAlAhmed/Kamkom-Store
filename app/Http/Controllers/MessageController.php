@@ -102,4 +102,19 @@ class MessageController extends Controller
             ]);
         }
     }
+    public function delete($mesgId){
+        $msg=Message::find($mesgId);
+        if($msg){
+            $msg->delete();
+            return response()->json([
+                "status"=>200,
+                "success"=>"Message Deleted successfully",
+            ]);
+        }else{
+            return response()->json([
+                "status"=>402,
+                "error"=>"The Message Doesnt Exist.",
+            ]);
+        }
+    }
 }

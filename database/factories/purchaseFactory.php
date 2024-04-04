@@ -18,9 +18,9 @@ class purchaseFactory extends Factory
     {
         return [
             "buyer_id"=>fake()->numberBetween(1,5),
-            "seller_id"=>1,
-            "product_id"=>fake()->numberBetween(1,5),
-            "cost"=>fake()->numberBetween(1,100)
+            "seller_id"=>'["1"]',
+            "cart_id"=>fake()->numberBetween(1,5),
+            "cost"=>fake()->numberBetween(1.00,100.00),
         ];
     }
 }
