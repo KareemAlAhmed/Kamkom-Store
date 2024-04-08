@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string("content");
             $table->float("star_numbers");
-            $table->foreignId("reviewer_id")->constrained("users");
+            $table->foreignId("reviewer_id")->nullable()->constrained("users")->onDelete("set null");
             $table->foreignId("product_id")->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

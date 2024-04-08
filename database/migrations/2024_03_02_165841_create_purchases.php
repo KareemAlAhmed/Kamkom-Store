@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("buyer_id")->constrained("users");
+            $table->foreignId("buyer_id")->nullable()->constrained("users")->onDelete("set null");
             $table->foreignId("cart_id");
             $table->json("seller_id");
             $table->float("cost");

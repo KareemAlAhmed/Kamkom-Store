@@ -76,10 +76,17 @@ class CartController extends Controller
     }
     public function show($ownerId){
         $cart=Cart::where("owner_id",$ownerId)->first();
+        $prodsJson=json_decode($cart->products_id);
+        $prods=[];
+        foreach($prodsJson as $prodId=>$value){
+            $prod=Product::find($prodId);
+            $prods[$value->quantity]=$prod;
+        }
         if($cart){
             return response()->json([
                 "status"=>200,
-                "cart"=>$cart
+                "cart"=>$cart,
+                "prods"=>$prods
             ]);
         }else{
             return response()->json([

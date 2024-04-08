@@ -25,7 +25,7 @@ return new class extends Migration
             $table->json("images_url");
             $table->string("thumbnail_url")->default("images.png");
             $table->foreignId("category_id");
-            $table->foreignId("user_id");
+            $table->foreignId("user_id")->constrained("users")->cascadeOnDelete();
             $table->timestamps();
         });
     }

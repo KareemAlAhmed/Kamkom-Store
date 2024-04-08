@@ -87,3 +87,16 @@ Route::controller(CartController::class)->group(function () {
     Route::post('cart/add/{ownerId}/{prodId}','add');
     Route::post('cart/remove/from/{ownerId}/{prodId}','remove');
 });
+
+
+Route::get("/ping",function(){
+    $mailchimp = new \MailchimpMarketing\ApiClient();
+
+    $mailchimp->setConfig([
+        'apiKey' => config('services.mailchimp.key'),
+        'server' => "us18"
+    ]);
+    
+    $response = $mailchimp->ping->get();
+    return $response;
+});

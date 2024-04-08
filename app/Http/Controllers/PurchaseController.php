@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PurchaseCompleted;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseController extends Controller
@@ -44,21 +46,21 @@ class PurchaseController extends Controller
                 $prch->cart_id=$cartId;
                 $prch->cost=$cost;
                 $buyer->balance-= $cost;
-                $buyer->update();
+                // $buyer->update();
                 foreach($productsId as $prodId=>$value){
                     $prod=Product::find($prodId);
                     $seller=User::where("id",$value->sellerId)->first();
 
                     $seller->balance=$seller->balance + ($value->quantity* $prod->price);
                     $prod->quantity=$prod->quantity - $value->quantity;
-                    $seller->update();
-                    $prod->update();
+                    // $seller->update();
+                    // $prod->update();
                 }
                 $cart->products_id=[];
                 $cart->cost=0.00;
-                $cart->update();
-                $prch->save();
-
+                // $cart->update();
+                $idP= $prch->save();
+                Mail::to("karim.abouamer2015@gmail.com")->send(new PurchaseCompleted($productsId,$buyer,$idP,$cost));
                 return response()->json([
                     "status"=>200,
                     "success"=>"The Purchase Created successfully",
