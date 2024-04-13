@@ -8,6 +8,9 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
+use PHPUnit\Framework\Constraint\IsEmpty;
+
+use function PHPUnit\Framework\isEmpty;
 
 class AuthController extends Controller
 {
@@ -160,5 +163,19 @@ class AuthController extends Controller
         return response()->json([
             "success"=>"Purchase information updated successfully"
         ]);
+    }
+    function all(){
+        $users=User::all();
+        if(isEmpty($users)){
+            return response()->json([
+                "status"=>200,
+                "users"=>$users
+            ]);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"There is no Users yet."
+            ],404);
+        }
     }
 }

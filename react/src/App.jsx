@@ -1,5 +1,6 @@
 import { ContextProvider } from "./context/contextProvider";
 import Login from "./views/Login";
+import './App.css';
 
 export default function App() {
   return (

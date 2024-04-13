@@ -11,9 +11,10 @@ class Purchase extends Model
     use HasFactory;
 
     public function buyers(){
-        return $this->belongsToMany(User::class,"buyer_id");
+        return $this->belongsTo(User::class,"buyer_id");
     }
     public function sellers(){
         return $this->belongsToMany(User::class,"seller_id");
     }
+    protected $with=["buyers","sellers"];
 }

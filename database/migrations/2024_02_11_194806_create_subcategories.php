@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('purchases', function (Blueprint $table) {
+        Schema::create('subcategories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("buyer_id")->nullable()->constrained("users")->onDelete("set null");
-            $table->json("products");
-            $table->json("seller_id");
-            $table->float("cost");
+            $table->string("name");
+            $table->foreignId("category_id");
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('purchases');
+        Schema::dropIfExists('subcategories');
     }
 };

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Subcategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class CategoryController extends Controller
+class SubCategoController extends Controller
 {
     public function create(Request $request){
         $val=Validator::make($request->all(),[
@@ -94,10 +95,10 @@ class CategoryController extends Controller
         ]);
     }
     function all(){
-        $categories=Category::all();
+        $subcategories=Subcategory::all();
         return response()->json([
             "status"=>200,
-            "categories"=>$categories
+            "subcategories"=>$subcategories
         ]);
     }
 }

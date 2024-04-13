@@ -8,6 +8,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SubCategoController;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('user/{id}/cart','get_cart');
     Route::get('user/{id}/listed_items','get_listed_items');
     Route::post('user/{id}/purchaseInfo/{shipTo:slug}/{currency:slug}','change_purchase_info');
+    Route::get('users','all');
 });
 
 Route::controller(ProductController::class)->group(function () {
@@ -53,6 +55,15 @@ Route::controller(CategoryController::class)->group(function () {
     Route::put('category/{cateId}/edit','edit'); 
     Route::delete('category/{cateId}/delete','delete');
     Route::get('category/{categoryName:slug}/search/{pordName:slug}','search');  
+    Route::get('categories','all');  
+});
+Route::controller(SubCategoController::class)->group(function () {
+    Route::post('subcategory/create','create');
+    Route::get('subcategory/{subcateId}','show'); 
+    Route::put('subcategory/{subcateId}/edit','edit'); 
+    Route::delete('subcategory/{subcateId}/delete','delete');
+    Route::get('subcategory/{subcateName:slug}/search/{pordName:slug}','search');  
+    Route::get('subcategories','all');  
 });
 Route::controller(PurchaseController::class)->group(function () {
     Route::post('purchase/{cartId}/to/{buyerId}','create');//always cartId == buyerId
@@ -60,6 +71,7 @@ Route::controller(PurchaseController::class)->group(function () {
     Route::get('purchase/edit/{purchaseId}','edit');
     // Route::patch('purchase/edit/{purchaseId}','update');
     Route::delete('purchase/delete/{purchaseId}','delete');
+    Route::get('purchases','all');  
 });
 Route::controller(CountryController::class)->group(function () {
     Route::post('coutries/add','add_countries');
@@ -88,15 +100,3 @@ Route::controller(CartController::class)->group(function () {
     Route::post('cart/remove/from/{ownerId}/{prodId}','remove');
 });
 
-
-Route::get("/ping",function(){
-    $mailchimp = new \MailchimpMarketing\ApiClient();
-
-    $mailchimp->setConfig([
-        'apiKey' => config('services.mailchimp.key'),
-        'server' => "us18"
-    ]);
-    
-    $response = $mailchimp->ping->get();
-    return $response;
-});

@@ -11,20 +11,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
+use function PHPUnit\Framework\isEmpty;
+
 class PurchaseController extends Controller
 {
     public function create($cartId,$buyerId){
 
         $buyer=User::find($buyerId);
         $cart=Cart::find($cartId);
-        $productsId=json_decode($cart->products_id);
+        $products=json_decode($cart->products_id);
         if(!$buyer){
             return response()->json([
                 "status"=>404,
                 "error"=>"The Buyer User Doesnt Exist."
             ]);
         }
-        if(empty($productsId)){
+        if(empty($products)){
             return response()->json([
                 "status"=>404,
                 "error"=>"The Cart is Empty."
@@ -32,7 +34,7 @@ class PurchaseController extends Controller
         }
         $cost=0.00;
         $sellers=[];
-        foreach($productsId as $prodId=>$value){
+        foreach($products as $prodId=>$value){
             $prod=Product::find($prodId);
             $cost=$cost + $value->quantity* $prod->price;
             $seller=User::where("id",$value->sellerId)->first();
@@ -43,24 +45,24 @@ class PurchaseController extends Controller
                 $prch=new Purchase();
                 $prch->buyer_id=$buyerId;
                 $prch->seller_id=json_encode($sellers);
-                $prch->cart_id=$cartId;
                 $prch->cost=$cost;
                 $buyer->balance-= $cost;
-                // $buyer->update();
-                foreach($productsId as $prodId=>$value){
+                $buyer->update();
+                foreach($products as $prodId=>$value){
                     $prod=Product::find($prodId);
                     $seller=User::where("id",$value->sellerId)->first();
 
                     $seller->balance=$seller->balance + ($value->quantity* $prod->price);
                     $prod->quantity=$prod->quantity - $value->quantity;
-                    // $seller->update();
-                    // $prod->update();
+                    $seller->update();
+                    $prod->update();
                 }
+                $prch->products=json_encode($products);
                 $cart->products_id=[];
                 $cart->cost=0.00;
-                // $cart->update();
+                $cart->update();
                 $idP= $prch->save();
-                Mail::to("karim.abouamer2015@gmail.com")->send(new PurchaseCompleted($productsId,$buyer,$idP,$cost));
+                Mail::to("abdulghafouralboukhary6@gmail.com")->send(new PurchaseCompleted($products,$buyer,$idP,$cost));
                 return response()->json([
                     "status"=>200,
                     "success"=>"The Purchase Created successfully",
@@ -73,7 +75,8 @@ class PurchaseController extends Controller
                 ]);  
             }     
     }
-
+  
+    
     public function show($purchaseId){
         $prch=Purchase::find($purchaseId);
         if($prch){ 
@@ -189,6 +192,20 @@ class PurchaseController extends Controller
                 "status"=>404,
                 "error"=>"The Purchase Doesnt Exist.",
             ]);
+        }
+    }
+    function all(){
+        $purchases=Purchase::all();
+        if(isEmpty($purchases)){
+            return response()->json([
+                "status"=>200,
+                "purchases"=>$purchases
+            ]);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"There is no Purchases yet."
+            ],404);
         }
     }
 }

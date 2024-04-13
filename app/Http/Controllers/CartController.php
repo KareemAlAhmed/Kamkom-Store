@@ -59,11 +59,20 @@ class CartController extends Controller
                 if($key == $productId){
                     $prods[$key]["quantity"]=$prods[$key]["quantity"] + 1;
                 }else{
-                    $prods[$productId]=["quantity"=>1,"seller"=>User::find($product->user_id)->firstName . " " . User::find($product->user_id)->secondName,"sellerId"=>$product->user_id];
+                    $prods[$productId]=["quantity"=>1,"seller"=>User::find($product->user_id)->firstName . " " . User::find($product->user_id)->secondName,"sellerId"=>$product->user_id,
+                    "BuyerName"=>$owner->firstName . " " . $owner->secondName,
+                    "ProductName"=>$product->name,
+                    "ProductPrice"=>$product->price
+                    ];
                 }
             }
         }else{
-            $prods[$productId]=["quantity"=>1,"seller"=>User::find($product->user_id)->firstName . " " . User::find($product->user_id)->secondName,"sellerId"=>$product->user_id];
+            $prods[$productId]=["quantity"=>1,
+            "seller"=>User::find($product->user_id)->firstName . " " . User::find($product->user_id)->secondName,
+            "sellerId"=>$product->user_id,
+            "BuyerName"=>$owner->firstName . " " . $owner->secondName,
+            "ProductName"=>$product->name,
+            "ProductPrice"=>$product->price];
         }
         $cart->products_id=json_encode($prods);
         $cart->cost=$cart->cost + $product->price;
