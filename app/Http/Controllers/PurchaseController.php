@@ -54,6 +54,7 @@ class PurchaseController extends Controller
 
                     $seller->balance=$seller->balance + ($value->quantity* $prod->price);
                     $prod->quantity=$prod->quantity - $value->quantity;
+                    $prod->sold_number+=$value->quantity;
                     $seller->update();
                     $prod->update();
                 }
@@ -62,7 +63,7 @@ class PurchaseController extends Controller
                 $cart->cost=0.00;
                 $cart->update();
                 $idP= $prch->save();
-                Mail::to("abdulghafouralboukhary6@gmail.com")->send(new PurchaseCompleted($products,$buyer,$idP,$cost));
+                Mail::to("karimahmad2172@gmail.com")->send(new PurchaseCompleted($products,$buyer,$idP,$cost));
                 return response()->json([
                     "status"=>200,
                     "success"=>"The Purchase Created successfully",
@@ -168,15 +169,16 @@ class PurchaseController extends Controller
     public function delete($prchId){
         $prch=Purchase::find($prchId);
         $buyer=User::find($prch->buyer_id);
-        $cart=Cart::find($prch->cart_id);
+        $prods=json_decode($prch->products);
         if($prch){
             $buyer->balance = $buyer->balance + $prch->cost;
-            foreach($cart->products_id as $prodId=>$value){
+            foreach($prods as $prodId=>$value){
                 $prod=Product::find($prodId);
                 $seller=User::where("id",$value->sellerId)->first();
 
                 $seller->balance=$seller->balance - ($value->quantity* $prod->price);
                 $prod->quantity=$prod->quantity + $value->quantity;
+                $prod->sold_number-= $value->quantity;
                 $seller->update();
                 $prod->update();
             }

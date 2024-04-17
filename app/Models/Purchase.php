@@ -16,5 +16,5 @@ class Purchase extends Model
     public function sellers(){
         return $this->belongsToMany(User::class,"seller_id");
     }
-    protected $with=["buyers","sellers"];
+    // protected $with=["buyers","sellers"];
 }

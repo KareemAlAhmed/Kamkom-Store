@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\Subcategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -12,14 +14,15 @@ use function PHPUnit\Framework\isEmpty;
 
 class ProductController extends Controller
 {
-    public function create(Request $request,$userId,$catId){
+    public function create(Request $request,$userId){
         $val=Validator::make($request->all(),[
             "name"=>"required|min:4|unique:products",
             "brand_name"=>"required|min:4",
-            "quantity"=>"required|numeric|gt:0",  
             "price"=>"required|numeric|gt:0",
+            "quantity"=>"required|numeric|gt:0",  
             "thumbnail_url"=>"required|min:3",
-            "images_url"=>"required|min:3"
+            "category_id"=>"required|gt:0",
+            "subcategory_id"=>"required|ge:0" 
         ]);
         if($request["spec"]["desc"]){
             $val1=Validator::make($request["spec"],[
@@ -32,25 +35,54 @@ class ProductController extends Controller
                 ],402);
             }
         }
+        $images=json_decode($request["images_url"]);
+        if(isEmpty($images)){
+            return response()->json([
+                'status'=>402,
+                'error'=>"There should be at least one image."
+            ],402);
+        }else{
+            foreach($images as $img){
+                $val1=Validator::make($img,[
+                    "min:4"
+                ]);
+                if($val->fails()){
+                    return response()->json([
+                        'status'=>402,
+                        'error'=>$val->messages()
+                    ],402);
+                }
+            }
+        }
         if($val->fails()){
             return response()->json([
                 'status'=>402,
                 'error'=>$val->messages()
             ],402);
         }else{
-            $prod=new Product();
-            $prod->name=$request['name'];
-            $prod->brand_name=$request['brand_name'];
-            $prod->quantity=$request['quantity'];
-            $prod->images_url=$request['images_url'];
-            $prod->category_id=$catId;
-            $prod->user_id=$userId;
-            $prod->price=$request['price'];
-            $prod->save();
-            return response()->json([
-                'message'=>"Product created successfully",
-                'product'=>$prod,              
-            ],200);
+            if(Category::find((int)$request['category_id']) || Subcategory::find((int)$request['subcategory_id'])){
+                $prod=new Product();
+                $prod->name=$request['name'];
+                $prod->brand_name=$request['brand_name'];
+                $prod->price=$request['price'];
+                $prod->quantity=$request['quantity'];
+                $prod->images_url=json_encode($request['images_url']);
+                $prod->thumbnail_url=$request['thumbnail_url'];
+                $prod->specs=json_encode($request['specs']);
+                $prod->category_id=(int)$request['category_id'];
+                $prod->subcategory_id=(int)$request['subcategory_id'];
+                $prod->user_id=$userId;
+                $prod->save();
+                return response()->json([
+                    'message'=>"Product created successfully",
+                    'product'=>$prod,              
+                ],200);
+            }else{
+                return response()->json([
+                    'status'=>404,
+                    'error'=>"The Category or SubCategory doesnt exist."
+                ],404);
+            }
         }
     }
 
@@ -72,19 +104,11 @@ class ProductController extends Controller
         if(isset($prod)){
             $val=Validator::make($request->all(),[
                 "name"=>"required|min:4|unique:products",
-                "description"=>"required|min:15",
-                "material"=>"required|min:4",
                 "brand_name"=>"required|min:4",
-                "quantity"=>"required|numeric|gt:0",
-                "color"=>"required|min:3",
-                "sold_number"=>"numeric|min:0",
-                "weight"=>"required|numeric|gt:0",
-                "size"=>"required|min:3|max:10",
-                "reviews_number"=>"numeric|min:0",
-                "star_number"=>"numeric|min:0",
+                "quantity"=>"required|numeric|gt:0",  
                 "price"=>"required|numeric|gt:0",
-                "origin"=>"min:4",
-                "images_url"=>"required|min:3"
+                "thumbnail_url"=>"required|min:3",
+                "images_url"=>"required|min:3",
             ]);
             if($val->fails()){
                 return response()->json([
@@ -94,11 +118,15 @@ class ProductController extends Controller
             }else{
                 $prod->name=$request['name'];
                 $prod->brand_name=$request['brand_name'];
-                $prod->quantity=$request['quantity'];
-                $prod->specs=$request['specs'];
-                $prod->images_url=$request['images_url'];
                 $prod->price=$request['price'];
+                $prod->quantity=$request['quantity'];
+                $prod->specs=json_encode($request['specs']);
+                $prod->images_url=json_encode($request['images_url']);
+                $prod->thumbnail_url=$request['thumbnail_url'];
+                $prod->category_id=(int)$request['category_id'];
+                $prod->subcategory_id=(int)$request['subcategory_id'];
                 $prod->update();
+
                 return response()->json([
                     'message'=>"Product updated successfully",
                     'product'=>$prod,              
@@ -139,8 +167,8 @@ class ProductController extends Controller
                         $results=$raws->orderByRaw('created_at DESC')->where([["name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])   
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -152,8 +180,8 @@ class ProductController extends Controller
                         ->orWhere([["description","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])  
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -168,8 +196,8 @@ class ProductController extends Controller
                         $results=$raws->orderByRaw('price ASC')->where([["name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])   
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -181,8 +209,8 @@ class ProductController extends Controller
                         ->orWhere([["description","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])  
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -199,8 +227,8 @@ class ProductController extends Controller
                         $results=$raws->orderByRaw('price DESC')->where([["name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])   
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -212,8 +240,8 @@ class ProductController extends Controller
                         ->orWhere([["description","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])  
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -228,8 +256,8 @@ class ProductController extends Controller
                         $results=$raws->where([["name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])   
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -243,8 +271,8 @@ class ProductController extends Controller
                         $results=$raws->orderByRaw('star_number DESC')->where([["name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])   
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -256,8 +284,8 @@ class ProductController extends Controller
                         ->orWhere([["description","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])  
-                        ->when($request["category_id"] !="",function($query) use ($request){
-                            return $query->where("category_id", $request['category_id']);
+                        ->when($request["subcategory_id"] !="",function($query) use ($request){
+                            return $query->where("subcategory_id", $request['subcategory_id']);
                         })
                         ->when($request["brand_name"] !="",function($query) use ($request){
                             return $query->where("brand_name", $request['brand_name']);
@@ -280,8 +308,8 @@ class ProductController extends Controller
         $results=$raws->where([["name","like","%" . $request['name'] . "%"],
         ["price",">=",$request['price1'] ?? '0'],
         ["price","<=",$request['price2'] ?? $max_price]])   
-        ->when($request["category_id"] !="",function($query) use ($request){
-            return $query->where("category_id", $request['category_id']);
+        ->when($request["subcategory_id"] !="",function($query) use ($request){
+            return $query->where("subcategory_id", $request['subcategory_id']);
         })
         ->when($request["brand_name"] !="",function($query) use ($request){
             return $query->where("brand_name", $request['brand_name']);
@@ -296,8 +324,8 @@ class ProductController extends Controller
         ->orWhere([["description","like","%" . $request['name'] . "%"],
         ["price",">=",$request['price1'] ?? '0'],
         ["price","<=",$request['price2'] ?? $max_price]])  
-        ->when($request["category_id"] !="",function($query) use ($request){
-            return $query->where("category_id", $request['category_id']);
+        ->when($request["subcategory_id"] !="",function($query) use ($request){
+            return $query->where("subcategory_id", $request['subcategory_id']);
         })
         ->when($request["brand_name"] !="",function($query) use ($request){
             return $query->where("brand_name", $request['brand_name']);

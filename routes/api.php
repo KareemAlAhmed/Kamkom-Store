@@ -33,6 +33,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login','login');
     Route::post('logout/{id}','logout');
     Route::post('user/{id}','show');
+    Route::post('user/{id}/delete','delete_user');
     Route::get('user/{id}/sold_items','sold_items');
     Route::get('user/{id}/purchase_items','purchase_items');
     Route::get('user/{id}/cart','get_cart');
@@ -70,7 +71,7 @@ Route::controller(PurchaseController::class)->group(function () {
     Route::get('purchase/{purchaseId}','show');
     Route::get('purchase/edit/{purchaseId}','edit');
     // Route::patch('purchase/edit/{purchaseId}','update');
-    Route::delete('purchase/delete/{purchaseId}','delete');
+    Route::delete('purchase/{purchaseId}/delete','delete');
     Route::get('purchases','all');  
 });
 Route::controller(CountryController::class)->group(function () {

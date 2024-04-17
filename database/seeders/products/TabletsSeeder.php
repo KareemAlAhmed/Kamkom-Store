@@ -9,16 +9,17 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
-use PhpOption\None;
 
-class LaptopsSeeder extends Seeder
+use function PHPUnit\Framework\isEmpty;
+
+class TabletsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $contents = Storage::get('./data/laptops.json');
+        $contents = Storage::get('./data/tablets.json');
         $contents=json_decode($contents);
 
         foreach($contents as $prod){
@@ -29,11 +30,11 @@ class LaptopsSeeder extends Seeder
             $product->price=(float)$prod->price;
             $product->quantity=10;
             $product->thumbnail_url=$prod->thumbnail_url;
-            $product->images_url=json_encode($prod->specs->Images_url);
+
             $user=User::where("FullName",$prod->specs->Vendor)->first();
             $product->user_id=$user->id;
 
-            $subCat=Subcategory::where("name",$prod->specs->Vendor)->where("category_id",1)->first();
+            $subCat=Subcategory::where("name",$prod->specs->Vendor)->where("category_id",6)->first();
             if(isset($subCat)){
                 $product->subcategory_id=$subCat->id;
                 $product->category_id=$subCat->category_id;
@@ -46,9 +47,12 @@ class LaptopsSeeder extends Seeder
             if($product->thumbnail_url =="None"){
                 $product->thumbnail_url=$prod->specs->Images_url[0];
             }
+            if(isEmpty(json_encode($prod->specs->Images_url))){
+                $product->images_url=json_encode($product->thumbnail_url);
+            }
             unset($prod->specs->Images_url);
             $product->specs=json_encode($prod->specs);
             $product->save();
-        }
+        } 
     }
 }

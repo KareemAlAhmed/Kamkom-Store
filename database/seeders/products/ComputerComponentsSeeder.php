@@ -9,16 +9,15 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
-use PhpOption\None;
 
-class LaptopsSeeder extends Seeder
+class ComputerComponentsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $contents = Storage::get('./data/laptops.json');
+        $contents = Storage::get('./data/computer-components.json');
         $contents=json_decode($contents);
 
         foreach($contents as $prod){
@@ -32,8 +31,7 @@ class LaptopsSeeder extends Seeder
             $product->images_url=json_encode($prod->specs->Images_url);
             $user=User::where("FullName",$prod->specs->Vendor)->first();
             $product->user_id=$user->id;
-
-            $subCat=Subcategory::where("name",$prod->specs->Vendor)->where("category_id",1)->first();
+            $subCat=Subcategory::where("name",$prod->specs->ProductType)->first();
             if(isset($subCat)){
                 $product->subcategory_id=$subCat->id;
                 $product->category_id=$subCat->category_id;
@@ -41,10 +39,6 @@ class LaptopsSeeder extends Seeder
                 $product->subcategory_id=null;
                 $category=Category::where("name",$prod->specs->ProductType)->first();
                 $product->category_id=$category->id;
-            }
-
-            if($product->thumbnail_url =="None"){
-                $product->thumbnail_url=$prod->specs->Images_url[0];
             }
             unset($prod->specs->Images_url);
             $product->specs=json_encode($prod->specs);

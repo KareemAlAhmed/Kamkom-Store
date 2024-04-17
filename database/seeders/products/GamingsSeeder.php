@@ -9,16 +9,15 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
-use PhpOption\None;
 
-class LaptopsSeeder extends Seeder
+class GamingsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $contents = Storage::get('./data/laptops.json');
+        $contents = Storage::get('./data/gaming.json');
         $contents=json_decode($contents);
 
         foreach($contents as $prod){
@@ -33,7 +32,7 @@ class LaptopsSeeder extends Seeder
             $user=User::where("FullName",$prod->specs->Vendor)->first();
             $product->user_id=$user->id;
 
-            $subCat=Subcategory::where("name",$prod->specs->Vendor)->where("category_id",1)->first();
+            $subCat=Subcategory::where("name",$prod->specs->ProductType)->first();
             if(isset($subCat)){
                 $product->subcategory_id=$subCat->id;
                 $product->category_id=$subCat->category_id;

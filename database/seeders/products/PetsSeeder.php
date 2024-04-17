@@ -9,31 +9,30 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
-use PhpOption\None;
 
-class LaptopsSeeder extends Seeder
+class PetsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $contents = Storage::get('./data/laptops.json');
+        $contents = Storage::get('./data/pets.json');
         $contents=json_decode($contents);
 
         foreach($contents as $prod){
             $product=new Product();
             $product->name=$prod->name;
             $product->brand_name=$prod->specs->Vendor;
-            $prod->price = str_replace(',', '', $prod->price); 
+            $prod->price = str_replace(',', '', "0.00"); 
             $product->price=(float)$prod->price;
-            $product->quantity=10;
+            $product->quantity=1;
             $product->thumbnail_url=$prod->thumbnail_url;
-            $product->images_url=json_encode($prod->specs->Images_url);
+            $product->images_url=json_encode($prod->thumbnail_url);
             $user=User::where("FullName",$prod->specs->Vendor)->first();
             $product->user_id=$user->id;
 
-            $subCat=Subcategory::where("name",$prod->specs->Vendor)->where("category_id",1)->first();
+            $subCat=Subcategory::where("name",$prod->specs->ProductType)->first();
             if(isset($subCat)){
                 $product->subcategory_id=$subCat->id;
                 $product->category_id=$subCat->category_id;
