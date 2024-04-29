@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(1)->create(["email"=>"karimamer@gmail.com","FullName"=>"karim ahmad","password"=>"81258136"]);
         // Cart::factory(1)->create(["owner_id"=>6]);
         $this->call(UsersSeeder::class);
-        // $this->call(CategorySeeder::class);
-        // $this->call(SubCateSeeder::class);
-        // $this->call(ProductSeeder::class);
+        $this->call(CategorySeeder::class);
+        $this->call(SubCateSeeder::class);
+        $this->call(ProductSeeder::class);
     }}      

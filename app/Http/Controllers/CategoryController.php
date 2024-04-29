@@ -29,11 +29,14 @@ class CategoryController extends Controller
         }
     }
 
-    public function show($id){
+    public function show_items($id){
         $category=Category::find($id);
+
         if(isset($category)){
+            $products=DB::table("products")->where('category_id', $id)->get();
             return response()->json([
-                'category'=>$category,              
+                'status'=>200,
+                'products'=>$products,              
             ],200);
         }else{
             return response()->json([
@@ -85,19 +88,36 @@ class CategoryController extends Controller
     }
     public function search(string $catName,string $prodName){
         $cat=Category::where("name",$catName)->first();
+        // return $cat;
         $raws=DB::table("products")
             ->where([["category_id","=",$cat->id],["name","like","%" . $prodName . "%"]])
-            ->orWhere([["category_id","=",$cat->id],["description","like","%" . $prodName . "%"]])
+            ->orWhere([["category_id","=",$cat->id],["brand_name","like","%" . $prodName . "%"]])
             ->get();
         return response()->json([
             "results"=>$raws
         ]);
+    }
+    function subs(string $catName){
+        $category=Category::where("name",$catName)->first();
+
+        if(isset($category)){
+            $subs=DB::table("subcategories")->where('category_id', $category->id)->get();
+            return response()->json([
+                'status'=>200,
+                'subs'=>$subs,              
+            ],200);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"The category doesnt exist."
+            ],404);
+        }
     }
     function all(){
         $categories=Category::all();
         return response()->json([
             "status"=>200,
             "categories"=>$categories
-        ]);
+        ],200);
     }
 }

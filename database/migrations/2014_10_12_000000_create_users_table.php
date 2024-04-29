@@ -24,12 +24,8 @@ return new class extends Migration
             $table->string('streetAddress');
             $table->string('province');
             $table->string('city');
-            $table->string('ship_to')->nullable()->default('lebanon');
             $table->string('currency')->nullable()->default('USD');
             $table->string('image_url')->nullable()->default('images.jpg');
-            $table->foreignId("blocked_user")->nullable()->constrained("users");
-            $table->string('company_name')->nullable();
-            $table->string('company_business')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

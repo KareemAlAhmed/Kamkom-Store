@@ -10,9 +10,15 @@ use Illuminate\Support\Facades\Validator;
 
 class SubCategoController extends Controller
 {
-    public function create(Request $request){
+    public function create(Request $request,$catId){
+        if(!Category::find($catId)){
+            return response()->json([
+                'status'=>404,
+                'error'=>"The Category Added doesnt exist."
+            ],404);
+        }
         $val=Validator::make($request->all(),[
-            "name"=>"required|min:4|unique:categories",
+            "name"=>"required|min:4|unique:subcategories",
         ]);
         if($val->fails()){
             return response()->json([
@@ -20,34 +26,38 @@ class SubCategoController extends Controller
                 'error'=>$val->messages()
             ],402);
         }else{
-            $category=new Category();
-            $category->name=$request['name'];
-            $category->save();
+            $subcategory=new Subcategory();
+            $subcategory->name=$request['name'];
+            $subcategory->category_id=$catId;
+            $subcategory->save();
             return response()->json([
-                'message'=>"Category created successfully",
-                'category'=>$category,              
+                'status'=>200,
+                'message'=>"The Subcategory created successfully",
+                'subcategory'=>$subcategory,              
             ],200);
         }
     }
 
-    public function show($id){
-        $category=Category::find($id);
-        if(isset($category)){
+    public function show_items($id){
+        $subcategory=Subcategory::find($id);
+        if(isset($subcategory)){
+            $products=DB::table("products")->where('subcategory_id', $id)->get();
             return response()->json([
-                'category'=>$category,              
+                'status'=>200,
+                'products'=>$products,              
             ],200);
         }else{
             return response()->json([
                 'status'=>404,
-                'error'=>"The category doesnt exist."
+                'error'=>"The Subcategory doesnt exist."
             ],404);
         }
     }
     public function edit(Request $request,$id){
-        $category=Category::find($id);
-        if(isset($category)){
+        $subcategory=Subcategory::find($id);
+        if(isset($subcategory)){
             $val=Validator::make($request->all(),[
-                "name"=>"required|min:4|unique:categories",
+                "name"=>"required|min:4|unique:subcategories",
             ]);
             if($val->fails()){
                 return response()->json([
@@ -55,50 +65,60 @@ class SubCategoController extends Controller
                     'error'=>$val->messages()
                 ],402);
             }else{
-                $category->name=$request['name'];
-                $category->update();
+                $subcategory->name=$request['name'];
+                $subcategory->update();
                 return response()->json([
-                    'message'=>"category updated successfully",
-                    'category'=>$category,              
+                    'status'=>200,
+                    'message'=>" The SubCategory Updated Successfully",
+                    'subcategory'=>$subcategory,              
                 ],200);
             }
         }else{
             return response()->json([
                 'status'=>404,
-                'error'=>"The category doesnt exist."
+                'error'=>"The SubCategory Wanted doesnt exist."
             ],404);
         }
     }
 
     public function delete($id){
-        $category=Category::find($id);
-        if(isset($category)){
-            $category->delete();
+        $subcategory=Subcategory::find($id);
+        if(isset($subcategory)){
+            $subcategory->delete();
             return response()->json([
-                'message'=>"category deleted successfully",              
+                'status'=>200,
+                'message'=>"The SubCategory deleted successfully",              
             ],200);
         }else{
             return response()->json([
                 'status'=>404,
-                'error'=>"The category doesnt exist."
+                'error'=>"The SubCategory doesnt exist."
             ],404);
         }
     }
-    public function search(string $catName,string $prodName){
-        $cat=Category::where("name",$catName)->first();
-        $raws=DB::table("products")
-            ->where([["category_id","=",$cat->id],["name","like","%" . $prodName . "%"]])
-            ->orWhere([["category_id","=",$cat->id],["description","like","%" . $prodName . "%"]])
+    public function search(string $subcat,string $prodName){
+        $subcat=Subcategory::where("name",$subcat)->first();
+        if($subcat){
+            $products=DB::table("products")
+            ->where([["subcategory_id","=",$subcat->id],["name","like","%" . $prodName . "%"]])
+            ->orWhere([["subcategory_id","=",$subcat->id],["brand_name","like","%" . $prodName . "%"]])
             ->get();
-        return response()->json([
-            "results"=>$raws
-        ]);
+            return response()->json([
+                "status"=>200,
+                "products"=>$products
+            ],200);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"The SubCategory Wanted doesnt exist."
+            ],404);
+        }
     }
     function all(){
         $subcategories=Subcategory::all();
         return response()->json([
             "status"=>200,
             "subcategories"=>$subcategories
-        ]);
+        ],200);
     }
 }

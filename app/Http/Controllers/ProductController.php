@@ -28,7 +28,7 @@ class ProductController extends Controller
             $val1=Validator::make($request["spec"],[
                 "desc"=>"min:15",
             ]);
-            if($val->fails()){
+            if($val1->fails()){
                 return response()->json([
                     'status'=>402,
                     'error'=>$val->messages()
@@ -43,10 +43,10 @@ class ProductController extends Controller
             ],402);
         }else{
             foreach($images as $img){
-                $val1=Validator::make($img,[
+                $val2=Validator::make($img,[
                     "min:4"
                 ]);
-                if($val->fails()){
+                if($val2->fails()){
                     return response()->json([
                         'status'=>402,
                         'error'=>$val->messages()
@@ -90,6 +90,7 @@ class ProductController extends Controller
         $product=Product::find($id);
         if(isset($product)){
             return response()->json([
+                'status'=>200,
                 'product'=>$product,              
             ],200);
         }else{
@@ -177,7 +178,7 @@ class ProductController extends Controller
                             return $query->where("star_number", ">=","4");
                         }) 
                                       
-                        ->orWhere([["description","like","%" . $request['name'] . "%"],
+                        ->orWhere([["brand_name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])  
                         ->when($request["subcategory_id"] !="",function($query) use ($request){
@@ -206,7 +207,7 @@ class ProductController extends Controller
                             return $query->where("star_number", ">=","4");
                         }) 
                                     
-                        ->orWhere([["description","like","%" . $request['name'] . "%"],
+                        ->orWhere([["brand_name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])  
                         ->when($request["subcategory_id"] !="",function($query) use ($request){
@@ -237,7 +238,7 @@ class ProductController extends Controller
                             return $query->where("star_number", ">=","4");
                         }) 
                                     
-                        ->orWhere([["description","like","%" . $request['name'] . "%"],
+                        ->orWhere([["brand_name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])  
                         ->when($request["subcategory_id"] !="",function($query) use ($request){
@@ -281,7 +282,7 @@ class ProductController extends Controller
                             return $query->where("star_number", ">=","4");
                         }) 
                                       
-                        ->orWhere([["description","like","%" . $request['name'] . "%"],
+                        ->orWhere([["brand_name","like","%" . $request['name'] . "%"],
                         ["price",">=",$request['price1'] ?? '0'],
                         ["price","<=",$request['price2'] ?? $max_price]])  
                         ->when($request["subcategory_id"] !="",function($query) use ($request){
@@ -321,7 +322,7 @@ class ProductController extends Controller
 
 
 
-        ->orWhere([["description","like","%" . $request['name'] . "%"],
+        ->orWhere([["brand_name","like","%" . $request['name'] . "%"],
         ["price",">=",$request['price1'] ?? '0'],
         ["price","<=",$request['price2'] ?? $max_price]])  
         ->when($request["subcategory_id"] !="",function($query) use ($request){
@@ -354,7 +355,25 @@ class ProductController extends Controller
         }
     }
 
-
-
+    public function test(Request $request){
+        if($request->hasFile('file')){      
+            $request->file->storeAs('public/UserProfilePic', $request->file->getClientOriginalName());
+        }
+        return true;
+    }
+    public function searchByCate(string $catName){
+        $cat=Category::where('name',$catName)->first();
+        if(isset($cat)){
+            return response()->json([
+                "status"=>200,
+                "prods"=>Product::where('category_id',$cat->id)->get()
+            ]);
+        }else{
+            return response()->json([
+                "status"=>404,
+                "error"=>"The Wanted Category Doesnt Exist!"
+            ]);
+        }
+    }
 
 }

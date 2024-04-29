@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class MessageController extends Controller
@@ -45,19 +46,27 @@ class MessageController extends Controller
         }
     }
 
-    public function show($mesgId){
-        $msg=Message::find($mesgId);
-        if($msg){ 
-            return response()->json([
-                "status"=>200,
-                "msg"=>$msg
-            ]);
-        }else{
-            return response()->json([
-                "status"=>404,
-                "error"=>"The Message Doesnt Exist."
-            ]);
-        }
+    public function show_conversation($user1Id,$user2Id){
+        // $msg=Message::find($mesgId);
+
+        $raws=DB::table("messages")
+        ->where([["sender_id","=",$user1Id],["receiver_id",$user2Id]])
+        ->orWhere([["sender_id","=",$user2Id],["receiver_id",$user1Id]])
+        ->orderByRaw('created_at')
+        ->get();
+
+        return $raws;
+        // if($msg){ 
+        //     return response()->json([
+        //         "status"=>200,
+        //         "msg"=>$msg
+        //     ]);
+        // }else{
+        //     return response()->json([
+        //         "status"=>404,
+        //         "error"=>"The Message Doesnt Exist."
+        //     ]);
+        // }
     }
     public function edit($mesgId){
         $msg=Message::find($mesgId);

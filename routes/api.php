@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SubCategoController;
+use App\Http\Controllers\WishListController;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,12 +34,10 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login','login');
     Route::post('logout/{id}','logout');
     Route::post('user/{id}','show');
-    Route::post('user/{id}/delete','delete_user');
+    Route::delete('user/{id}/delete','delete_user');
     Route::get('user/{id}/sold_items','sold_items');
     Route::get('user/{id}/purchase_items','purchase_items');
-    Route::get('user/{id}/cart','get_cart');
     Route::get('user/{id}/listed_items','get_listed_items');
-    Route::post('user/{id}/purchaseInfo/{shipTo:slug}/{currency:slug}','change_purchase_info');
     Route::get('users','all');
 });
 
@@ -48,20 +47,22 @@ Route::controller(ProductController::class)->group(function () {
     Route::put('product/{pordId}/edit','edit'); 
     Route::delete('product/{pordId}/delete','delete');
     Route::get('product/search/{prod:slug}','search');  
-    Route::get('products','all_prod');  
+    Route::get('product/searchByCat/{categoryName:slug}','searchByCate');  
+    Route::get('products','all_prod');   
 });
 Route::controller(CategoryController::class)->group(function () {
     Route::post('category/create','create');
-    Route::get('category/{cateId}','show'); 
+    Route::get('category/{cateId}','show_items'); 
     Route::put('category/{cateId}/edit','edit'); 
     Route::delete('category/{cateId}/delete','delete');
     Route::get('category/{categoryName:slug}/search/{pordName:slug}','search');  
+    Route::get('category/{categoryName:slug}/subcategories','subs');  
     Route::get('categories','all');  
 });
 Route::controller(SubCategoController::class)->group(function () {
-    Route::post('subcategory/create','create');
-    Route::get('subcategory/{subcateId}','show'); 
-    Route::put('subcategory/{subcateId}/edit','edit'); 
+    Route::post('subcategory/create/for/{categoryId}','create');
+    Route::get('subcategory/{subcateId}','show_items'); 
+    Route::patch('subcategory/{subcateId}/edit','edit'); 
     Route::delete('subcategory/{subcateId}/delete','delete');
     Route::get('subcategory/{subcateName:slug}/search/{pordName:slug}','search');  
     Route::get('subcategories','all');  
@@ -82,7 +83,7 @@ Route::controller(CountryController::class)->group(function () {
 
 Route::controller(MessageController::class)->group(function () {
     Route::post('message/create/{senderId}/{receiverId}','create');
-    Route::get('message/{msgId}','show');
+    Route::get('message/{user1Id}/{user2Id}','show_conversation');
     Route::get('message/edit/{msgId}','edit');
     Route::patch('message/edit/{msgId}','update');
     Route::delete('message/delete/{msgId}','delete');
@@ -97,7 +98,14 @@ Route::controller(ReviewController::class)->group(function () {
 });
 Route::controller(CartController::class)->group(function () {
     Route::get('cart/{ownerId}','show');
-    Route::post('cart/add/{ownerId}/{prodId}','add');
-    Route::post('cart/remove/from/{ownerId}/{prodId}','remove');
+    Route::post('cart/add/{prodId}/to/{ownerId}','add');
+    Route::delete('cart/remove/{prodId}/from/{ownerId}/','remove');
+    Route::delete('cart/{ownerId}/clear','clear');
+});
+Route::controller(WishListController::class)->group(function () {
+    Route::get('wishlist/{ownerId}','show');
+    Route::post('wishlist/add/{prodId}/to/{ownerId}','add_prod');
+    Route::delete('wishlist/remove/{prodId}/from/{ownerId}','remove_prod');
+    Route::delete('wishlist/{ownerId}/clear','clear');
 });
 

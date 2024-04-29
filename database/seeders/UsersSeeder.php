@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\WishListController;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -76,11 +77,13 @@ class UsersSeeder extends Seeder
             $user->city="Beyrouth";
             $current_time = date("Y-m-d H:i:s");
             $user->email_verified_at=$current_time;
-            $token=$user->createToken('myapptoken')->plainTextToken;
             $user->save();
+            $token=$user->createToken('myapptoken')->plainTextToken;
             $id=User::where("fullName",$name)->first()->id;
             $cart=new CartController();
             $cart->create($id);
+            $wishlist=new WishListController();
+            $wishlist->create($id);
         }
     }
 }

@@ -20,7 +20,8 @@ return new class extends Migration
             $table->integer("quantity");
             $table->integer("sold_number")->default(0);
             $table->integer("reviews_number")->default(0);
-            $table->integer("star_number")->default(0);
+            $table->float("star_number")->default(0.00);
+            $table->float("rating")->default(0.00);
             $table->json("specs");
             $table->json("images_url");
             $table->string("thumbnail_url",500)->default("images.png");

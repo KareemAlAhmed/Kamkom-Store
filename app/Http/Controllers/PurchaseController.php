@@ -92,20 +92,20 @@ class PurchaseController extends Controller
             ]);
         }
     }
-    public function edit($purchaseId){
-        $prch=Purchase::find($purchaseId);
-        if($prch){ 
-            return response()->json([
-                "status"=>200,
-                "purchase"=>$prch
-            ]);
-        }else{
-            return response()->json([
-                "status"=>404,
-                "error"=>"The Purchase Doesnt Exist."
-            ]);
-        }
-    }
+    // public function edit($purchaseId){
+    //     $prch=Purchase::find($purchaseId);
+    //     if($prch){ 
+    //         return response()->json([
+    //             "status"=>200,
+    //             "purchase"=>$prch
+    //         ]);
+    //     }else{
+    //         return response()->json([
+    //             "status"=>404,
+    //             "error"=>"The Purchase Doesnt Exist."
+    //         ]);
+    //     }
+    // }
 
     // public function update(Request $request,$purchaseId){
     //     $prch=Purchase::find($purchaseId);

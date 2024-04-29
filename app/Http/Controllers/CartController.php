@@ -31,7 +31,7 @@ class CartController extends Controller
             ]);
         }
     }
-    public function add($ownerId,$productId){
+    public function add($productId,$ownerId){
         $owner=User::find($ownerId);
         $product=Product::find($productId);
         if(!$owner){
@@ -59,8 +59,8 @@ class CartController extends Controller
                 if($key == $productId){
                     $prods[$key]["quantity"]=$prods[$key]["quantity"] + 1;
                 }else{
-                    $prods[$productId]=["quantity"=>1,"seller"=>User::find($product->user_id)->firstName . " " . User::find($product->user_id)->secondName,"sellerId"=>$product->user_id,
-                    "BuyerName"=>$owner->firstName . " " . $owner->secondName,
+                    $prods[$productId]=["quantity"=>1,"seller"=>User::find($product->user_id)->FullName,"sellerId"=>$product->user_id,
+                    "BuyerName"=>$owner->FullName,
                     "ProductName"=>$product->name,
                     "ProductPrice"=>$product->price
                     ];
@@ -68,9 +68,9 @@ class CartController extends Controller
             }
         }else{
             $prods[$productId]=["quantity"=>1,
-            "seller"=>User::find($product->user_id)->firstName . " " . User::find($product->user_id)->secondName,
+            "seller"=>User::find($product->user_id)->FullName,
             "sellerId"=>$product->user_id,
-            "BuyerName"=>$owner->firstName . " " . $owner->secondName,
+            "BuyerName"=>$owner->FullName,
             "ProductName"=>$product->name,
             "ProductPrice"=>$product->price];
         }
@@ -88,13 +88,12 @@ class CartController extends Controller
         $prodsJson=json_decode($cart->products_id);
         $prods=[];
         foreach($prodsJson as $prodId=>$value){
-            $prod=Product::find($prodId);
-            $prods[$value->quantity]=$prod;
+            $prods[]=["productDetail"=>Product::find($prodId),"quantity"=>$value->quantity];
         }
         if($cart){
             return response()->json([
                 "status"=>200,
-                "cart"=>$cart,
+                "cost"=>$cart->cost,
                 "prods"=>$prods
             ]);
         }else{
@@ -104,7 +103,7 @@ class CartController extends Controller
             ]);
         }
     }
-    public function remove($ownerId,$productId){
+    public function remove($productId,$ownerId){
         $owner=User::find($ownerId);
         if(!$owner){
             return response()->json([
@@ -151,5 +150,24 @@ class CartController extends Controller
             "success"=>"The Product removed succesfuly",
             "cart"=>$cart,
         ]); 
+    }
+
+    public function clear($ownerId){
+        $owner=User::find($ownerId);
+        if($owner){
+            $cart=Cart::find($ownerId);
+            $cart->products_id=json_encode([]);
+            $cart->cost=0.00;
+            $cart->update();
+            return response()->json([
+                "status"=>200,
+                "success"=>"The Cart Cleared Successfuly",
+            ]);
+        }else{
+            return response()->json([
+                "status"=>400,
+                "error"=>"The Owner doesnt exist",
+            ]);
+        }
     }
 }

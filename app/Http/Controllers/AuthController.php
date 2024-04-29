@@ -52,9 +52,11 @@ class AuthController extends Controller
             $user->province=$request['province'];
             $user->city=$request['city'];
             
-            if(isset($request['image_url'])){
-                $user->image_url=$request['image_url'];
+            if($request->hasFile('image_url')){
+                $user->image_url=$request->image_url->getClientOriginalName();   
+                $request->image_url->storeAs('public/UserProfilePic',$user->image_url);
             }
+
             if(isset($request['company_name'])){
                 $user->company_name=$request['company_name'];
             }
@@ -66,10 +68,13 @@ class AuthController extends Controller
             $id=$user->save();
             $cart=new CartController();
             $cart->create($id);
+            $wishlist=new WishListController();
+            $wishlist->create($id);
             $token=$user->createToken('myapptoken')->plainTextToken;
             $data=[$user,$token];
 
             return response()->json([
+                'status'=>200,
                 'message'=>"User created successfully",
                 'user'=>$data,              
             ],200);
@@ -89,40 +94,94 @@ class AuthController extends Controller
             $token=$user->createToken('myapptoken')->plainTextToken;
 
             return response()->json([
+                'status'=>200,
                 'message'=>"You login successfully",
                 'user'=>[$user,$token]
-            ]);
+            ],200);
         }
     }
     public function logout($id){
         $user=User::find($id);
         $user->tokens()->delete();
         return response()->json([
+            'status'=>200,
             "message"=>"User logout successfully"
-        ]);
+        ],200);
     }
 
-    public function show($id){
+    public function user_data($id){
         $user=User::find($id);
 
         if($user){
             return response()->json([
+                'status'=>200,
                 'user'=>$user
             ],200);
         }else{
             return response()->json([
+                'status'=>404,
                 'error'=>"User Doesnt exist."
             ],404);
         }
     }
-    public function delete_user($id){
+
+    public function update_user(Request $request,$id){
         $user=User::find($id);
         if($user){
-            $user->delete();
-            return response()->json([
-                "status"=>200,
-                "users"=>"The User Deleted Successfuly."
+            $val=FacadesValidator::make($request->all(),[
+                'firstName'=>'required|min:3',
+                'secondName'=>'required|min:3',
+                'bio'=>'min:15',
+                'email'=>'required|min:7|email|unique:users',
+                "password"=>'required|min:5',
+                "country"=>'required|min:3',
+                "streetAddress"=>'required|min:16',
+                "province"=>'required|min:4',
+                "city"=>'required|min:3',
+                "image_url"=>'min:3',
+                "company_name"=>'min:4',
+                "company_business"=>'min:4',
             ]);
+    
+            if($val->fails()){
+                return response()->json([
+                    'status'=>402,
+                    'error'=>$val->messages()
+                ],402);
+            }else{
+                $user->fullName=$request['firstName'] . $request['secondName'];
+                if(isset($request['bio'])){
+                    $user->bio=$request['bio'];
+                }else{
+                    $user->bio="Hey there, fellow KamKom shopper! I'm " . $user->fullName .", and I've got some really cool stuff for you here at KamKom Store.";
+                }
+                $user->email=$request['email'];
+                $user->password=bcrypt($request['password']);
+                $user->country=$request['country'];
+                $user->streetAddress=$request['streetAddress'];
+                $user->province=$request['province'];
+                $user->city=$request['city'];
+                
+                if($request->hasFile('image_url')){
+                    $user->image_url=$request->image_url->getClientOriginalName();   
+                    $request->image_url->storeAs('public/UserProfilePic',$user->image_url);
+                }
+    
+                if(isset($request['company_name'])){
+                    $user->company_name=$request['company_name'];
+                }
+                if(isset($request['company_business'])){
+                    $user->company_business=$request['company_business'];
+                }
+                $id=$user->update();
+               
+    
+                return response()->json([
+                    'status'=>200,              
+                    'message'=>"User Data Updated successfully",
+                ],200);
+    
+            }
         }else{
             return response()->json([
                 'status'=>404,
@@ -130,60 +189,85 @@ class AuthController extends Controller
             ],404);
         }
     }
+
+    public function delete_user($id){
+        $user=User::find($id);
+        if($user){
+            $user->delete();
+            return response()->json([
+                "status"=>200,
+                "message"=>"The User Deleted Successfuly."
+            ,200]);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"The User Doesnt Exist."
+            ],404);
+        }
+    }
+
+
     public function sold_items(int $id){
         $user=User::find($id);
-        $listIds=$user->sales;
-        $items=array();
-        foreach($listIds as $item){
-            if($item['status'] == "completed"){
-                $items[]=Product::find($item['product_id']);
+        if($user){
+            $listIds=$user->sales;
+            $items=array();
+            foreach($listIds as $item){
+                if($item['status'] == "completed"){
+                    $items[]=Product::find($item['product_id']);
+                }
             }
+            return response()->json([
+                'status'=>200,
+                'items'=>$items
+            ],200);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"The User Doesnt Exist."
+            ],404);
         }
-        return response()->json(['items'=>$items]);
     }
     public function purchase_items(int $id){
         $user=User::find($id);
-        $listIds=$user->purchases;
-        $items=array();
-        foreach($listIds as $item){
-            if($item['status'] == "completed"){
-                $items[]=Product::find($item['product_id']);
+        if($user){
+            $purchases=$user->purchases;
+            $items=array();
+            foreach($purchases as $purch){
+                $listProd=json_decode($purch->products);
+                
+                foreach($listProd as $id=>$value){
+                    $items[]=["productDetail"=>Product::find($id),"quantity"=>$value->quantity];       
+                }
+                
             }
+            return response()->json([
+                'status'=>200,
+                'items'=>$items],200);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"The User Doesnt Exist."
+            ],404);
         }
-        return response()->json(['items'=>$items]);
-    }
-    public function get_cart($id){
-        $user=User::find($id);
-        $listIds=$user->purchases;
-        $items=array();
-        foreach($listIds as $item){
-            if($item['status'] == "pending"){
-                $items[]=Product::find($item['product_id']);
-            }
-        }
-        return response()->json(['items'=>$items]);
     }
     
     public function get_listed_items($id){
         $user=User::find($id);
-        $listIds=$user->sales;
-        $items=array();
-        foreach($listIds as $item){
-            if($item['status'] == "pending"){
-                $items[]=Product::find($item['product_id']);
-            }
+        if($user){
+            $items=$user->products;
+            
+            return response()->json([
+                "status"=>200,
+                'items'=>$items],200);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"The User Doesnt Exist."
+            ],404);
         }
-        return response()->json(['items'=>$items]);
     }
-    public function change_purchase_info($id,string $ship_to,string $currency){
-        $user=User::find($id);
-        $user->ship_to=$ship_to;
-        $user->currency=$currency;
-        $user->update();
-        return response()->json([
-            "success"=>"Purchase information updated successfully"
-        ]);
-    }
+ 
     function all(){
         $users=User::all();
         if(isEmpty($users)){

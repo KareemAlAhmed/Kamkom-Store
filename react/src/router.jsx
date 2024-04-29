@@ -10,6 +10,7 @@ import UsersTable from "./views/Dashboard/jsx/UsersTable.jsx";
 import OrdersTable from "./views/Dashboard/jsx/OrdersTable.jsx";
 import CategoriesTable from "./views/Dashboard/jsx/CategoriesTable.jsx";
 import SubCategoriesTable from "./views/Dashboard/jsx/SubCategoriesTable.jsx";
+import Signin from "./views/Signin";
 
 
 const router =createBrowserRouter([
@@ -57,7 +58,12 @@ const router =createBrowserRouter([
                 path: "/dashboard/subcategories", // Use a full path starting from "/"
                 element: <SubCategoriesTable  />,
             },
+
           ], 
+    },
+    {
+        path: "/signin", // Use a full path starting from "/"
+        element: <Signin  />,
     },
     {
         path:"*",
