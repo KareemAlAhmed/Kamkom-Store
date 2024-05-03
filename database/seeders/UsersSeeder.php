@@ -36,22 +36,22 @@ class UsersSeeder extends Seeder
         // //     $product->thumbnail_url=$prod['thumbnail_url'];
         // //     unset($specs['Images_url']);
         // //     unset($specs['Vendor']);
-        // //     $product->specs=$specs;
+        // //     $product=$specs;
         // // }
         // foreach($contents as $prod){
-        //     // $specs=json_decode($prod->specs);
+        //     // $specs=json_decode($prod);
         //     // $product=new Product();
         //     // $product->name=$prod->name;
-        //     // $product->brand_name=$prod->specs->ProductType;
+        //     // $product->brand_name=$prod->ProductType;
         //     // // $product->price=$prod['price'];
         //     // // $product->quantity=10;
         //     // // $product->images_url=$specs['Images_url'];
         //     // // $product->thumbnail_url=$prod['thumbnail_url'];
         //     // // unset($specs['Images_url']);
         //     // // unset($specs['Vendor']);
-        //     // // $product->specs=$specs;
-        //     if (!in_array($prod->specs->Vendor, $exist) && !in_array($prod->specs->Vendor, $users)) {
-        //         array_push($exist,$prod->specs->Vendor);
+        //     // // $product=$specs;
+        //     if (!in_array($prod->Vendor, $exist) && !in_array($prod->Vendor, $users)) {
+        //         array_push($exist,$prod->Vendor);
         //         // $data["Fashion"][]=$product->brand_name;
         //     } 
            
@@ -69,11 +69,11 @@ class UsersSeeder extends Seeder
             $user->bio="Hey there, fellow KamKom shopper! I'm " . $name .", and I've got some really cool stuff for you here at KamKom Store.";
             $user->email= str_replace(' ', '', $name)."@gmail.com";
             $user->password=bcrypt("81258136");
-            $user->balance=500.00;
+            $user->balance=5000.00;
             $user->kamkom_number=rand(10000000, 99999999);
             $user->country="Lebanon";
             $user->streetAddress="Lebanon,beyrouth";
-            $user->province="Beyrouth";
+            $user->isAdmin=false;
             $user->city="Beyrouth";
             $current_time = date("Y-m-d H:i:s");
             $user->email_verified_at=$current_time;

@@ -18,6 +18,7 @@ class ProductController extends Controller
         $val=Validator::make($request->all(),[
             "name"=>"required|min:4|unique:products",
             "brand_name"=>"required|min:4",
+            "description"=>"required|min:10",
             "price"=>"required|numeric|gt:0",
             "quantity"=>"required|numeric|gt:0",  
             "thumbnail_url"=>"required|min:3",
@@ -68,7 +69,7 @@ class ProductController extends Controller
                 $prod->quantity=$request['quantity'];
                 $prod->images_url=json_encode($request['images_url']);
                 $prod->thumbnail_url=$request['thumbnail_url'];
-                $prod->specs=json_encode($request['specs']);
+                $prod->description=$request['description'];
                 $prod->category_id=(int)$request['category_id'];
                 $prod->subcategory_id=(int)$request['subcategory_id'];
                 $prod->user_id=$userId;
@@ -109,7 +110,7 @@ class ProductController extends Controller
                 "quantity"=>"required|numeric|gt:0",  
                 "price"=>"required|numeric|gt:0",
                 "thumbnail_url"=>"required|min:3",
-                "images_url"=>"required|min:3",
+                "description"=>"required|min:10",
             ]);
             if($val->fails()){
                 return response()->json([
@@ -121,7 +122,7 @@ class ProductController extends Controller
                 $prod->brand_name=$request['brand_name'];
                 $prod->price=$request['price'];
                 $prod->quantity=$request['quantity'];
-                $prod->specs=json_encode($request['specs']);
+                $prod->description=$request['description'];
                 $prod->images_url=json_encode($request['images_url']);
                 $prod->thumbnail_url=$request['thumbnail_url'];
                 $prod->category_id=(int)$request['category_id'];

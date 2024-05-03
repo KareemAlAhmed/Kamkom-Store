@@ -270,7 +270,7 @@ class AuthController extends Controller
  
     function all(){
         $users=User::all();
-        if(isEmpty($users)){
+        if(!isEmpty($users)){
             return response()->json([
                 "status"=>200,
                 "users"=>$users
@@ -279,6 +279,22 @@ class AuthController extends Controller
             return response()->json([
                 'status'=>404,
                 'error'=>"There is no Users yet."
+            ],404);
+        }
+    }
+    function makeAdmin($userId){
+        $user=User::find($userId);
+        if($user){
+            $user->isAdmin=true;
+            $user->update();
+            return response()->json([
+                "status"=>200,
+                "message"=>"The User " . $user->fullName ." Is Admin Now"
+            ]);
+        }else{
+            return response()->json([
+                'status'=>404,
+                'error'=>"The User Doesnt Exist."
             ],404);
         }
     }

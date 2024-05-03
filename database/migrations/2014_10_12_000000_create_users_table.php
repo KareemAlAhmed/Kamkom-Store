@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('kamkom_number')->unique();
             $table->string('country');
             $table->string('streetAddress');
-            $table->string('province');
+            $table->boolean('isAdmin')->default(false);
             $table->string('city');
             $table->string('currency')->nullable()->default('USD');
             $table->string('image_url')->nullable()->default('images.jpg');

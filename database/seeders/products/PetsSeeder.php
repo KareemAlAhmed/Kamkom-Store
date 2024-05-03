@@ -23,30 +23,30 @@ class PetsSeeder extends Seeder
         foreach($contents as $prod){
             $product=new Product();
             $product->name=$prod->name;
-            $product->brand_name=$prod->specs->Vendor;
+            $product->brand_name=$prod->Vendor;
             $prod->price = str_replace(',', '', "0.00"); 
             $product->price=(float)$prod->price;
             $product->quantity=1;
             $product->thumbnail_url=$prod->thumbnail_url;
             $product->images_url=json_encode($prod->thumbnail_url);
-            $user=User::where("FullName",$prod->specs->Vendor)->first();
+            $user=User::where("FullName",$prod->Vendor)->first();
             $product->user_id=$user->id;
 
-            $subCat=Subcategory::where("name",$prod->specs->ProductType)->first();
+            $subCat=Subcategory::where("name",$prod->ProductType)->first();
             if(isset($subCat)){
                 $product->subcategory_id=$subCat->id;
                 $product->category_id=$subCat->category_id;
             }else{
                 $product->subcategory_id=null;
-                $category=Category::where("name",$prod->specs->ProductType)->first();
+                $category=Category::where("name",$prod->ProductType)->first();
                 $product->category_id=$category->id;
             }
 
             if($product->thumbnail_url =="None"){
-                $product->thumbnail_url=$prod->specs->Images_url[0];
+                $product->thumbnail_url=$prod->Images_url[0];
             }
-            unset($prod->specs->Images_url);
-            $product->specs=json_encode($prod->specs);
+            unset($prod->Images_url);
+                        $product->description=$prod->description;
             $product->save();
         }
     }

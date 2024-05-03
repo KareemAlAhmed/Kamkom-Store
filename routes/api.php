@@ -39,6 +39,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('user/{id}/purchase_items','purchase_items');
     Route::get('user/{id}/listed_items','get_listed_items');
     Route::get('users','all');
+    Route::put('user/makeAdmin/{userId}','makeAdmmin');
 });
 
 Route::controller(ProductController::class)->group(function () {
