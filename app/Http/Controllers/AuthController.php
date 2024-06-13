@@ -15,6 +15,7 @@ use function PHPUnit\Framework\isEmpty;
 class AuthController extends Controller
 {
     public function register(Request $request){
+        
         $val=FacadesValidator::make($request->all(),[
             'firstName'=>'required|min:3',
             'secondName'=>'required|min:3',
@@ -23,11 +24,10 @@ class AuthController extends Controller
             "password"=>'required|min:5',
             "country"=>'required|min:3',
             "streetAddress"=>'required|min:16',
-            "province"=>'required|min:4',
             "city"=>'required|min:3',
             "image_url"=>'min:3',
-            "company_name"=>'min:4',
-            "company_business"=>'min:4',
+
+        
         ]);
 
         if($val->fails()){
@@ -37,7 +37,7 @@ class AuthController extends Controller
             ],402);
         }else{
             $user=new User();
-            $user->fullName=$request['firstName'] . $request['secondName'];
+            $user->fullName=$request['firstName'] . " " . $request['secondName'];
             if(isset($request['bio'])){
                 $user->bio=$request['bio'];
             }else{
@@ -45,11 +45,11 @@ class AuthController extends Controller
             }
             $user->email=$request['email'];
             $user->password=bcrypt($request['password']);
-            $user->balance=500.00;
+            $user->balance=5000.00;
             $user->kamkom_number=rand(10000000, 99999999);
             $user->country=$request['country'];
             $user->streetAddress=$request['streetAddress'];
-            $user->province=$request['province'];
+ 
             $user->city=$request['city'];
             
             if($request->hasFile('image_url')){
@@ -57,15 +57,11 @@ class AuthController extends Controller
                 $request->image_url->storeAs('public/UserProfilePic',$user->image_url);
             }
 
-            if(isset($request['company_name'])){
-                $user->company_name=$request['company_name'];
-            }
-            if(isset($request['company_business'])){
-                $user->company_business=$request['company_business'];
-            }
+
             $current_time = date("Y-m-d H:i:s");
             $user->email_verified_at=$current_time;
-            $id=$user->save();
+            $user->save();
+            $id=$user->id;
             $cart=new CartController();
             $cart->create($id);
             $wishlist=new WishListController();
@@ -136,11 +132,10 @@ class AuthController extends Controller
                 "password"=>'required|min:5',
                 "country"=>'required|min:3',
                 "streetAddress"=>'required|min:16',
-                "province"=>'required|min:4',
+
                 "city"=>'required|min:3',
                 "image_url"=>'min:3',
-                "company_name"=>'min:4',
-                "company_business"=>'min:4',
+
             ]);
     
             if($val->fails()){
@@ -149,7 +144,7 @@ class AuthController extends Controller
                     'error'=>$val->messages()
                 ],402);
             }else{
-                $user->fullName=$request['firstName'] . $request['secondName'];
+                $user->fullName=$request['firstName'] . " " . $request['secondName'];
                 if(isset($request['bio'])){
                     $user->bio=$request['bio'];
                 }else{
@@ -159,7 +154,7 @@ class AuthController extends Controller
                 $user->password=bcrypt($request['password']);
                 $user->country=$request['country'];
                 $user->streetAddress=$request['streetAddress'];
-                $user->province=$request['province'];
+
                 $user->city=$request['city'];
                 
                 if($request->hasFile('image_url')){
@@ -167,12 +162,7 @@ class AuthController extends Controller
                     $request->image_url->storeAs('public/UserProfilePic',$user->image_url);
                 }
     
-                if(isset($request['company_name'])){
-                    $user->company_name=$request['company_name'];
-                }
-                if(isset($request['company_business'])){
-                    $user->company_business=$request['company_business'];
-                }
+      
                 $id=$user->update();
                
     

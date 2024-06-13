@@ -25,17 +25,6 @@ class ProductController extends Controller
             "category_id"=>"required|gt:0",
             "subcategory_id"=>"required|ge:0" 
         ]);
-        if($request["spec"]["desc"]){
-            $val1=Validator::make($request["spec"],[
-                "desc"=>"min:15",
-            ]);
-            if($val1->fails()){
-                return response()->json([
-                    'status'=>402,
-                    'error'=>$val->messages()
-                ],402);
-            }
-        }
         $images=json_decode($request["images_url"]);
         if(isEmpty($images)){
             return response()->json([

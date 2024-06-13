@@ -1,0 +1,25 @@
+.products {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.cartContainer {
+    width: 23%;
+    margin: 1%;
+    margin-top: 30px;
+}
+
+@media (max-width: 800px) {
+    .cartContainer {
+        width: 30%;
+        margin: 1.6667%;
+    }
+}
+
+@media (max-width: 480px) {
+    .cartContainer {
+        width: 46%;
+        margin: 2%;
+    }
+}

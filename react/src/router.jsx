@@ -1,75 +1,46 @@
-import {createBrowserRouter} from "react-router-dom"
-import Login from "./views/Login";
+import { createBrowserRouter } from "react-router-dom";
 import NotFound from "./views/NotFound";
-import HomePage from "./views/HomePage/HomePage";
-import ProductNavigator from "./views/HomePage/jsx/ProductNavigator.jsx";
-import ProductPage from "./views/HomePage/jsx/ProductPage";
-import Dashboard from "./views/Dashboard/Dashboard";
-import ProductsTable from "./views/Dashboard/jsx/ProductsTable.jsx";
-import UsersTable from "./views/Dashboard/jsx/UsersTable.jsx";
-import OrdersTable from "./views/Dashboard/jsx/OrdersTable.jsx";
-import CategoriesTable from "./views/Dashboard/jsx/CategoriesTable.jsx";
-import SubCategoriesTable from "./views/Dashboard/jsx/SubCategoriesTable.jsx";
-import Signin from "./views/Signin";
+import App from "./App";
+import ShoppingCart from "./pages/ShoppingCart/ShoppingCart";
+import ProductDetails from "./pages/ProductDetails/ProductDetails";
+import Dashboard from "./pages/dashboard/Dashboard";
+import UserProfile from "./pages/userProfile/UserProfile";
+import Auth from "./pages/auth/Auth";
+import SearchPage from "./pages/SearchPage/SearchPage";
 
-
-const router =createBrowserRouter([
+const router = createBrowserRouter([
     {
         path: "/",
-        element: <HomePage />,      
+        element: <App />,
     },
     {
-        path:"/login",
-        element:<Login />
+        path: "/auth",
+        element: <Auth />,
     },
     {
-        path:"/products/:productId",
-        element:<ProductNavigator />
+        path: "/cart",
+        element: <ShoppingCart />,
     },
     {
-        path:"/products/:word",
-        element:<ProductPage />
+        path: "/search",
+        element: <SearchPage />,
     },
     {
-        path:"/dashboard",
-        element:<Dashboard />,
-        children: [   
-            {
-                index: true, // Define index route separately
-                element: <ProductsTable />,
-            },
-            {
-              path: "/dashboard/products", // Use a full path starting from "/"
-              element: <ProductsTable  />,
-            },
-            {
-              path: "/dashboard/users", // Use a full path starting from "/"
-              element: <UsersTable  />,
-            },
-            {
-              path: "/dashboard/orders", // Use a full path starting from "/"
-              element: <OrdersTable  />,
-            },
-            {
-                path: "/dashboard/categories", // Use a full path starting from "/"
-                element: <CategoriesTable  />,
-            },
-            {
-                path: "/dashboard/subcategories", // Use a full path starting from "/"
-                element: <SubCategoriesTable  />,
-            },
-
-          ], 
+        path: "/product/:id",
+        element: <ProductDetails />,
     },
     {
-        path: "/signin", // Use a full path starting from "/"
-        element: <Signin  />,
+        path: "/dashboard/:item",
+        element: <Dashboard />,
     },
     {
-        path:"*",
-        element:<NotFound />
+        path: "/profile",
+        element: <UserProfile />,
     },
-    
-])
+    {
+        path: "*",
+        element: <NotFound />,
+    },
+]);
 
 export default router;
