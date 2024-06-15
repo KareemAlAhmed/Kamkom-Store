@@ -9,6 +9,10 @@ import { useDispatch } from "react-redux";
 import "./AddProduct.css";
 import { addProductAction } from "../../../../redux/slices/Product";
 
+import axios from "axios";
+
+
+
 const formSchema = Yup.object({
     name: Yup.string().required("Name of product is required"),
     brand: Yup.string().required("Brand name is required"),
@@ -57,20 +61,27 @@ const AddProduct = () => {
             console.log({
                 ...values,
                 category: selectedCategory.value,
-                images: JSON.stringify(images),
+                images_url: JSON.stringify(images),
             });
+            axios.post(`http://127.0.0.1:8000/api/product/create/user/1/cate/1`, {
+                ...values,
+                category: selectedCategory.value,
+                images_url: JSON.stringify(images)
+            })
+            .then(res=>console.log(res)) 
+            .catch(err=>console.log(err))
+            ;
+            // dispatch(
+            //     addProductAction({
+            //         ...values,
+            //         category: selectedCategory.value,
+            //         images_url: JSON.stringify(images),
+            //     })
+            // );
 
-            dispatch(
-                addProductAction({
-                    ...values,
-                    category: selectedCategory.value,
-                    images: JSON.stringify(images),
-                })
-            );
-
-            setImages([]);
-            setSelectedCategory({ value: "Laptops" });
-            formik.resetForm();
+            // setImages([]);
+            // setSelectedCategory({ value: "Laptops" });
+            // formik.resetForm();
         },
         validationSchema: formSchema,
     });

@@ -19,11 +19,11 @@ class AuthController extends Controller
         $val=FacadesValidator::make($request->all(),[
             'firstName'=>'required|min:3',
             'secondName'=>'required|min:3',
-            'bio'=>'min:15',
+            'bio'=>'min:5',
             'email'=>'required|min:7|email|unique:users',
             "password"=>'required|min:5',
             "country"=>'required|min:3',
-            "streetAddress"=>'required|min:16',
+            "streetAddress"=>'required|min:5',
             "city"=>'required|min:3',
             "image_url"=>'min:3',
 

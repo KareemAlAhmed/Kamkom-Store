@@ -17,23 +17,28 @@ class ProductController extends Controller
     public function create(Request $request,$userId){
         $val=Validator::make($request->all(),[
             "name"=>"required|min:4|unique:products",
-            "brand_name"=>"required|min:4",
+            "brand"=>"required|min:4",
             "description"=>"required|min:10",
             "price"=>"required|numeric|gt:0",
             "quantity"=>"required|numeric|gt:0",  
-            "thumbnail_url"=>"required|min:3",
-            "category_id"=>"required|gt:0",
-            "subcategory_id"=>"required|ge:0" 
+            // "thumbnail_url"=>"required|min:3",
+            "category"=>"required|min:3",
+            // "subcategory_id"=>"required|ge:0" 
         ]);
         $images=json_decode($request["images_url"]);
-        if(isEmpty($images)){
+        $images_urls=[];
+        foreach($images as $key=>$img){
+            array_push($images_urls,$img->path);
+        }
+
+        if(!isset($images_urls)){
             return response()->json([
                 'status'=>402,
                 'error'=>"There should be at least one image."
             ],402);
         }else{
-            foreach($images as $img){
-                $val2=Validator::make($img,[
+            foreach($images_urls as $img){
+                $val2=Validator::make($images_urls,[
                     "min:4"
                 ]);
                 if($val2->fails()){
@@ -44,23 +49,26 @@ class ProductController extends Controller
                 }
             }
         }
+
         if($val->fails()){
             return response()->json([
                 'status'=>402,
                 'error'=>$val->messages()
             ],402);
         }else{
-            if(Category::find((int)$request['category_id']) || Subcategory::find((int)$request['subcategory_id'])){
+            $cat=Category::where("name",$request['category'])->first();
+            if(isset($cat)){
                 $prod=new Product();
                 $prod->name=$request['name'];
-                $prod->brand_name=$request['brand_name'];
+                $prod->brand_name=$request['brand'];
                 $prod->price=$request['price'];
                 $prod->quantity=$request['quantity'];
-                $prod->images_url=json_encode($request['images_url']);
-                $prod->thumbnail_url=$request['thumbnail_url'];
+                $prod->images_url=json_encode($images_urls);
+                $prod->thumbnail_url=$images_urls[0];
                 $prod->description=$request['description'];
-                $prod->category_id=(int)$request['category_id'];
-                $prod->subcategory_id=(int)$request['subcategory_id'];
+                
+                $prod->category_id=$cat->id;
+                // $prod->subcategory_id=(int)$request['subcategory_id'];
                 $prod->user_id=$userId;
                 $prod->save();
                 return response()->json([
@@ -95,7 +103,7 @@ class ProductController extends Controller
         if(isset($prod)){
             $val=Validator::make($request->all(),[
                 "name"=>"required|min:4|unique:products",
-                "brand_name"=>"required|min:4",
+                "brand"=>"required|min:4",
                 "quantity"=>"required|numeric|gt:0",  
                 "price"=>"required|numeric|gt:0",
                 "thumbnail_url"=>"required|min:3",
@@ -108,7 +116,7 @@ class ProductController extends Controller
                 ],402);
             }else{
                 $prod->name=$request['name'];
-                $prod->brand_name=$request['brand_name'];
+                $prod->brand=$request['brand'];
                 $prod->price=$request['price'];
                 $prod->quantity=$request['quantity'];
                 $prod->description=$request['description'];

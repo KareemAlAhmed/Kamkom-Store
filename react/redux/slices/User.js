@@ -18,6 +18,7 @@ export const userRegisterAction = createAsyncThunk(
             dispatch(isRegistered());
             return data;
         } catch (error) {
+            console.log(error)
             if (!error.response) {
                 return error;
             }

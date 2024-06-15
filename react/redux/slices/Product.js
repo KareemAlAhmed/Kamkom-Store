@@ -28,13 +28,14 @@ export const addProductAction = createAsyncThunk(
         // formData.append("condition", payload?.condition);
 
         try {
-            const { data } = axios.post(`${baseUrl}/product/create`, payload);
-
+            const { data } = axios.post(`${baseUrl}/product/create/user/1/cate/1`, payload);
+            console.log(data)
             return data;
         } catch (error) {
             if (!error.response) {
                 return error;
             }
+            console.log(error)
             return rejectWithValue(error?.response?.data);
         }
     }
